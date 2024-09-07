@@ -1,0 +1,188 @@
+.textandinput {
+  display: flex;
+  width: 95%;
+  min-width: 60%;
+  /* background-color: aliceblue; */
+  justify-content: space-between;
+  color: white;
+}
+@media (max-width: 600px) {
+  .textandinput {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+}
+.header {
+  padding: 6% 0;
+  height: 241px;
+  width: 100%;
+  background-color: #212121;
+}
+.fooduzone {
+  font-size: 30px;
+  font-weight: bold;
+}
+.searchinput {
+  border: 2px solid red;
+  background: transparent;
+}
+.btn {
+  margin-left: 15px;
+}
+.AllButtons {
+  height: 100px;
+  /* width: 600px; */
+  /* min-width: 378px; */
+  /* background-color: #212121; */
+  display: flex;
+  /* border: 5px solid white; */
+  display: flex;
+  align-items: flex-end;
+
+  justify-content: center;
+  /* margin-top: 60px; */
+  /* margin-right: 30vw; */
+}
+
+.Body {
+  background-image: url("./assets/images/a.jpg");
+  background-color: rgba(0, 0, 0, 0.5);
+  background-blend-mode: multiply;
+
+  height: 100vh;
+  /* position: absolute; */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  /* padding: 50px 0 0 150px; */
+}
+.transparent {
+  background-color: blue;
+}
+.cardss {
+  width: 420px;
+  min-width: 300px;
+  height: 210px;
+  /* background: transparent; */
+  background-color: rgba(69, 97, 97, 0.9);
+  border: transparent;
+  border-radius: 10px;
+  margin-left: 10px;
+  /* Default font size */
+}
+
+.cardimage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: flex;
+  flex-direction: column;
+}
+.cardImageandtext {
+  display: flex;
+}
+
+.egg {
+  font-size: 20px;
+}
+.eggpara {
+  font-size: 14px;
+}
+.titlebtndesc {
+  color: white;
+  /* margin-top: 20px; */
+  /* background-color: #212121; */
+  max-width: 160px;
+
+  /* background-color: black; */
+}
+.pricebtn {
+  margin-top: 43px;
+  /* height: 12rem; */
+  /* width: 10vw; */
+  margin-left: 50px;
+  /* background-color: #212121; */
+  display: flex;
+  justify-content: center;
+  /* align-items: flex-end; */
+  /* margin-bottom: 20px; */
+  /* z-index: 5; */
+}
+
+.cardContainer {
+  display: flex;
+  flex-wrap: wrap;
+  height: 100%;
+  width: 90%;
+  /* background-color: #212121; */
+  /* padding: 150px; */
+  /* padding-left: 20px; */
+  padding-left: 50px;
+  padding-top: 40px;
+  /* margin-top: 20px; */
+}
+.cardimage {
+  border-radius: 50%;
+}
+.buttonss {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  /* min-width: 378px; */
+}
+@media (max-width: 600px) {
+  .buttonss {
+    justify-content: space-around;
+  }
+}
+
+.addBtn {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-end;
+  margin-top: 60px;
+
+  width: 60px;
+}
+.popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(97, 0, 0, 0.9);
+  border: 1px solid black;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  backdrop-filter: blur(5px);
+  height: 45vh;
+  border-radius: 20px;
+}
+.popupForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.popupButton {
+  display: flex;
+  flex-direction: row;
+  width: 20vw;
+  padding: 10%;
+  justify-content: space-evenly;
+}
+.input {
+  background-color: transparent;
+  border: 2px solid solid;
+  border-bottom: 2px solid solid;
+  border-radius: 5px;
+  outline: none;
+  color: white;
+  width: 17vw;
+}
+.imagechoose {
+  /* margin-left: 10px; */
+  background-color: transparent;
+}
