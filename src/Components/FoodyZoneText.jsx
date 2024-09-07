@@ -1,5 +1,4 @@
 // import React, { useState, useEffect } from "react";
-// import { IoAddCircleOutline } from "react-icons/io5";
 // import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 // import {
 //   collection,
@@ -8,9 +7,13 @@
 //   deleteDoc,
 //   doc,
 //   getDocs,
-// } from "firebase/firestore"; // Import update and delete
+//   query,
+//   where,
+// } from "firebase/firestore";
 // import { db, storage } from "../Configuration";
-// import Background from "./Background"; // Import the Background component
+// import Background from "./Background";
+// import Header from "./Header";
+// import Popup from "./Popup"; // Import the Popup component
 
 // function FoodyZoneText() {
 //   const [inputValue, setInputValue] = useState("");
@@ -20,20 +23,40 @@
 //   const [InputValueofprice, setInputValueofprice] = useState("");
 //   const [foods, setFoods] = useState([]);
 //   const [searchQuery, setSearchQuery] = useState("");
-//   const [editFoodId, setEditFoodId] = useState(null); // New state to track edit mode
-//   const [foodCategory, setFoodCategory] = useState("");
+//   const [editFoodId, setEditFoodId] = useState(null);
+//   const [foodCategory, setFoodCategory] = useState("All");
+//   const [formFoodCategory, setFormFoodCategory] = useState("All");
 
 //   useEffect(() => {
 //     fetchData();
-//   }, []);
+//   }, [searchQuery, foodCategory]);
 
 //   const fetchData = async () => {
-//     const querySnapshot = await getDocs(collection(db, "Foods"));
-//     const foodsData = querySnapshot.docs.map((doc) => ({
-//       ...doc.data(),
-//       id: doc.id,
-//     }));
-//     setFoods(foodsData);
+//     try {
+//       let q = collection(db, "Foods");
+
+//       if (foodCategory !== "All") {
+//         q = query(q, where("category", "==", foodCategory));
+//       }
+
+//       if (searchQuery) {
+//         q = query(
+//           q,
+//           where("title", ">=", searchQuery.toLowerCase()),
+//           where("title", "<=", searchQuery.toLowerCase() + "\uf8ff")
+//         );
+//       }
+
+//       const querySnapshot = await getDocs(q);
+//       const foodsData = querySnapshot.docs.map((doc) => ({
+//         ...doc.data(),
+//         id: doc.id,
+//       }));
+
+//       setFoods(foodsData);
+//     } catch (error) {
+//       console.error("Error fetching data", error);
+//     }
 //   };
 
 //   const handleButtonClick = () => {
@@ -46,7 +69,8 @@
 //     setInputValueofdec("");
 //     setInputValueofprice("");
 //     setSelectedImage(null);
-//     setEditFoodId(null); // Reset edit mode
+//     setEditFoodId(null);
+//     setFormFoodCategory("All");
 //   };
 
 //   const uploadImage = async (image) => {
@@ -70,39 +94,39 @@
 //       const imageUrl = selectedImage ? await uploadImage(selectedImage) : null;
 
 //       if (editFoodId) {
-//         // Update existing food
 //         const foodRef = doc(db, "Foods", editFoodId);
 //         await updateDoc(foodRef, {
 //           title: inputValue,
 //           desc: InputValueofdec,
 //           imageUrl:
-//             imageUrl || foods.find((food) => food.id === editFoodId).imageUrl, // If no new image, keep the old one
+//             imageUrl || foods.find((food) => food.id === editFoodId).imageUrl,
 //           price: InputValueofprice,
+//           category: formFoodCategory,
 //         });
 //       } else {
-//         // Create new food
 //         await addDoc(collection(db, "Foods"), {
 //           title: inputValue,
 //           desc: InputValueofdec,
 //           imageUrl: imageUrl,
 //           price: InputValueofprice,
+//           category: formFoodCategory,
 //         });
 //       }
 
 //       clearForm();
 //       setIsPopupVisible(false);
-//       fetchData(); // Refresh the list
+//       fetchData();
 //     } catch (error) {
 //       console.error("Error uploading data", error);
 //     }
 //   };
 
 //   const handleEditClick = (food) => {
-//     // Pre-fill the form with the selected food data
 //     setInputValue(food.title);
 //     setInputValueofdec(food.desc);
 //     setInputValueofprice(food.price);
 //     setEditFoodId(food.id);
+//     setFormFoodCategory(food.category);
 //     setIsPopupVisible(true);
 //   };
 
@@ -111,7 +135,7 @@
 //       await deleteDoc(doc(db, "Foods", editFoodId));
 //       clearForm();
 //       setIsPopupVisible(false);
-//       fetchData(); // Refresh the list after deletion
+//       fetchData();
 //     } catch (error) {
 //       console.error("Error deleting food", error);
 //     }
@@ -122,181 +146,42 @@
 //     setIsPopupVisible(false);
 //   };
 
-//   const filteredFoods = foods.filter((food) =>
-//     food.title.toLowerCase().includes(searchQuery.toLowerCase())
-//   );
+//   const filteredFoods = foods.filter((food) => {
+//     const matchesSearchQuery = food.title
+//       .toLowerCase()
+//       .includes(searchQuery.toLowerCase());
+//     const matchesCategory =
+//       foodCategory === "All" || food.category === foodCategory;
+//     return matchesSearchQuery && matchesCategory;
+//   });
 
 //   return (
 //     <>
-//       <div>
-//         <div className="header">
-//           <div className="textandinput">
-//             <div className="fooduzone">
-//               <span>F</span>
-//               <span style={{ color: "red" }}>oo</span>
-//               <span>dy</span>
-//               <span>&nbsp;</span>
-//               <span>Z</span>
-//               <span style={{ color: "red" }}>o</span>
-//               <span>ne</span>
-//             </div>
-//             <div>
-//               <input
-//                 type="search"
-//                 placeholder="Search"
-//                 className="searchinput"
-//                 value={searchQuery}
-//                 onChange={(e) => setSearchQuery(e.target.value)}
-//               />
-//             </div>
-//           </div>
-//           <div className="buttonss">
-//             <div>
-//               <button
-//                 className="btn btn-danger buttonss addBtn"
-//                 onClick={handleButtonClick}
-//               >
-//                 <IoAddCircleOutline />
-//               </button>
-
-//               {isPopupVisible && (
-//                 <div className="popup popup-container">
-//                   <form onSubmit={writeData} className="popupForm">
-//                     <label htmlFor="title">Enter Food Name</label>
-//                     <input
-//                       required
-//                       className="input"
-//                       type="text"
-//                       value={inputValue}
-//                       onChange={(e) => setInputValue(e.target.value)}
-//                     />
-//                     <label htmlFor="desc">Enter Food Description</label>
-//                     <input
-//                       required
-//                       className="input"
-//                       type="text"
-//                       value={InputValueofdec}
-//                       onChange={(e) => setInputValueofdec(e.target.value)}
-//                     />
-//                     <label htmlFor="image">Upload Food Image</label>
-//                     <input
-//                       className="input"
-//                       type="file"
-//                       onChange={(e) => setSelectedImage(e.target.files[0])}
-//                     />
-//                     <label htmlFor="price">Enter Food Price</label>
-//                     <input
-//                       required
-//                       className="input"
-//                       type="text"
-//                       value={InputValueofprice}
-//                       onChange={(e) => setInputValueofprice(e.target.value)}
-//                     />
-//                     <label htmlFor="category">Select Food Category</label>
-//                     <select
-//                       style={{ backgroundColor: "transparent", color: "white" }}
-//                       required
-//                       className="input"
-//                       value={foodCategory}
-//                       onChange={(e) => setFoodCategory(e.target.value)}
-//                     >
-//                       <option
-//                         style={{
-//                           backgroundColor: "rgb(97, 0, 0, 0.9)",
-//                           color: "white",
-//                         }}
-//                         value=""
-//                       >
-//                         Select Category
-//                       </option>
-//                       <option
-//                         style={{
-//                           backgroundColor: "rgb(97, 0, 0, 0.9)",
-//                           color: "white",
-//                         }}
-//                         value="Breakfast"
-//                       >
-//                         Breakfast
-//                       </option>
-//                       <option
-//                         style={{
-//                           backgroundColor: "rgb(97, 0, 0, 0.9)",
-//                           color: "white",
-//                         }}
-//                         value="Lunch"
-//                       >
-//                         Lunch
-//                       </option>
-//                       <option
-//                         style={{
-//                           backgroundColor: "rgb(97, 0, 0, 0.9)",
-//                           color: "white",
-//                         }}
-//                         value="Dinner"
-//                       >
-//                         Dinner
-//                       </option>
-//                     </select>
-
-//                     <div className="popupButton">
-//                       {editFoodId ? (
-//                         <>
-//                           <button
-//                             className="btn btn-danger"
-//                             onClick={handleDelete}
-//                           >
-//                             Delete
-//                           </button>
-//                           <button className="btn btn-primary" type="submit">
-//                             Update
-//                           </button>
-//                         </>
-//                       ) : (
-//                         <button className="btn btn-primary" type="submit">
-//                           Submit
-//                         </button>
-//                       )}
-//                       <button
-//                         className="btn btn-danger"
-//                         onClick={handleClosePopup}
-//                       >
-//                         Close
-//                       </button>
-//                     </div>
-//                   </form>
-//                 </div>
-//               )}
-//             </div>
-//             <div className="AllButtons">
-//               //{" "}
-//               <button
-//                 className="btn btn-danger"
-//                 onClick={() => setSelectedCategory("All")}
-//               >
-//                 All
-//               </button>
-//               <button
-//                 className="btn btn-danger"
-//                 onClick={() => setSelectedCategory("Breakfast")}
-//               >
-//                 Breakfast
-//               </button>
-//               <button
-//                 className="btn btn-danger"
-//                 onClick={() => setSelectedCategory("Lunch")}
-//               >
-//                 Lunch
-//               </button>
-//               <button
-//                 className="btn btn-danger"
-//                 onClick={() => setSelectedCategory("Dinner")}
-//               >
-//                 Dinner
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
+//       <Header
+//         searchQuery={searchQuery}
+//         setSearchQuery={setSearchQuery}
+//         handleButtonClick={handleButtonClick}
+//         isPopupVisible={isPopupVisible}
+//         setFoodCategory={setFoodCategory}
+//       />
+//       {isPopupVisible && (
+//         <Popup
+//           inputValue={inputValue}
+//           setInputValue={setInputValue}
+//           InputValueofdec={InputValueofdec}
+//           setInputValueofdec={setInputValueofdec}
+//           InputValueofprice={InputValueofprice}
+//           setInputValueofprice={setInputValueofprice}
+//           selectedImage={selectedImage}
+//           setSelectedImage={setSelectedImage}
+//           formFoodCategory={formFoodCategory}
+//           setFormFoodCategory={setFormFoodCategory}
+//           writeData={writeData}
+//           handleDelete={handleDelete}
+//           handleClosePopup={handleClosePopup}
+//           editFoodId={editFoodId}
+//         />
+//       )}
 //       <Background foods={filteredFoods} onEdit={handleEditClick} />
 //     </>
 //   );
@@ -304,8 +189,9 @@
 
 // export default FoodyZoneText;
 
+// src/components/FoodyZoneText.jsx
+
 import React, { useState, useEffect } from "react";
-import { IoAddCircleOutline } from "react-icons/io5";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import {
   collection,
@@ -314,9 +200,13 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 import { db, storage } from "../Configuration";
 import Background from "./Background";
+import Header from "./Header";
+import Popup from "./Popup";
 
 function FoodyZoneText() {
   const [inputValue, setInputValue] = useState("");
@@ -328,18 +218,42 @@ function FoodyZoneText() {
   const [searchQuery, setSearchQuery] = useState("");
   const [editFoodId, setEditFoodId] = useState(null);
   const [foodCategory, setFoodCategory] = useState("All");
+  const [formFoodCategory, setFormFoodCategory] = useState("All");
+  const [loading, setLoading] = useState(false); // Loading state
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [searchQuery, foodCategory]);
 
   const fetchData = async () => {
-    const querySnapshot = await getDocs(collection(db, "Foods"));
-    const foodsData = querySnapshot.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    }));
-    setFoods(foodsData);
+    setLoading(true); // Set loading to true when starting fetch
+    try {
+      let q = collection(db, "Foods");
+
+      if (foodCategory !== "All") {
+        q = query(q, where("category", "==", foodCategory));
+      }
+
+      if (searchQuery) {
+        q = query(
+          q,
+          where("title", ">=", searchQuery.toLowerCase()),
+          where("title", "<=", searchQuery.toLowerCase() + "\uf8ff")
+        );
+      }
+
+      const querySnapshot = await getDocs(q);
+      const foodsData = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+
+      setFoods(foodsData);
+    } catch (error) {
+      console.error("Error fetching data", error);
+    } finally {
+      setLoading(false); // Set loading to false when fetch is done
+    }
   };
 
   const handleButtonClick = () => {
@@ -353,7 +267,7 @@ function FoodyZoneText() {
     setInputValueofprice("");
     setSelectedImage(null);
     setEditFoodId(null);
-    setFoodCategory("All"); // Reset category
+    setFormFoodCategory("All");
   };
 
   const uploadImage = async (image) => {
@@ -384,7 +298,7 @@ function FoodyZoneText() {
           imageUrl:
             imageUrl || foods.find((food) => food.id === editFoodId).imageUrl,
           price: InputValueofprice,
-          category: foodCategory, // Add category field
+          category: formFoodCategory,
         });
       } else {
         await addDoc(collection(db, "Foods"), {
@@ -392,7 +306,7 @@ function FoodyZoneText() {
           desc: InputValueofdec,
           imageUrl: imageUrl,
           price: InputValueofprice,
-          category: foodCategory, // Add category field
+          category: formFoodCategory,
         });
       }
 
@@ -409,7 +323,7 @@ function FoodyZoneText() {
     setInputValueofdec(food.desc);
     setInputValueofprice(food.price);
     setEditFoodId(food.id);
-    setFoodCategory(food.category); // Pre-fill category
+    setFormFoodCategory(food.category);
     setIsPopupVisible(true);
   };
 
@@ -440,176 +354,36 @@ function FoodyZoneText() {
 
   return (
     <>
-      <div>
-        <div className="header">
-          <div className="textandinput">
-            <div className="fooduzone">
-              <span>F</span>
-              <span style={{ color: "red" }}>oo</span>
-              <span>dy</span>
-              <span>&nbsp;</span>
-              <span>Z</span>
-              <span style={{ color: "red" }}>o</span>
-              <span>ne</span>
-            </div>
-            <div>
-              <input
-                type="search"
-                placeholder="Search"
-                className="searchinput"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="buttonss">
-            <div>
-              <button
-                className="btn btn-danger buttonss addBtn"
-                onClick={handleButtonClick}
-              >
-                <IoAddCircleOutline />
-              </button>
-
-              {isPopupVisible && (
-                <div className="popup popup-container">
-                  <form onSubmit={writeData} className="popupForm">
-                    <label htmlFor="title">Enter Food Name</label>
-                    <input
-                      required
-                      className="input"
-                      type="text"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                    />
-                    <label htmlFor="desc">Enter Food Description</label>
-                    <input
-                      required
-                      className="input"
-                      type="text"
-                      value={InputValueofdec}
-                      onChange={(e) => setInputValueofdec(e.target.value)}
-                    />
-                    <label htmlFor="image">Upload Food Image</label>
-                    <input
-                      className="input"
-                      type="file"
-                      onChange={(e) => setSelectedImage(e.target.files[0])}
-                    />
-                    <label htmlFor="price">Enter Food Price</label>
-                    <input
-                      required
-                      className="input"
-                      type="text"
-                      value={InputValueofprice}
-                      onChange={(e) => setInputValueofprice(e.target.value)}
-                    />
-                    <label htmlFor="category">Select Food Category</label>
-                    <select
-                      style={{ backgroundColor: "transparent", color: "white" }}
-                      required
-                      className="input"
-                      value={foodCategory}
-                      onChange={(e) => setFoodCategory(e.target.value)}
-                    >
-                      <option
-                        style={{
-                          backgroundColor: "rgb(97, 0, 0, 0.9)",
-                          color: "white",
-                        }}
-                        value=""
-                      >
-                        Select Category
-                      </option>
-                      <option
-                        style={{
-                          backgroundColor: "rgb(97, 0, 0, 0.9)",
-                          color: "white",
-                        }}
-                        value="Breakfast"
-                      >
-                        Breakfast
-                      </option>
-                      <option
-                        style={{
-                          backgroundColor: "rgb(97, 0, 0, 0.9)",
-                          color: "white",
-                        }}
-                        value="Lunch"
-                      >
-                        Lunch
-                      </option>
-                      <option
-                        style={{
-                          backgroundColor: "rgb(97, 0, 0, 0.9)",
-                          color: "white",
-                        }}
-                        value="Dinner"
-                      >
-                        Dinner
-                      </option>
-                    </select>
-
-                    <div className="popupButton">
-                      {editFoodId ? (
-                        <>
-                          <button
-                            className="btn btn-danger"
-                            onClick={handleDelete}
-                          >
-                            Delete
-                          </button>
-                          <button className="btn btn-primary" type="submit">
-                            Update
-                          </button>
-                        </>
-                      ) : (
-                        <button className="btn btn-primary" type="submit">
-                          Submit
-                        </button>
-                      )}
-                      <button
-                        className="btn btn-danger"
-                        onClick={handleClosePopup}
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              )}
-            </div>
-            <div className="AllButtons">
-              <button
-                className="btn btn-danger"
-                onClick={() => setFoodCategory("All")}
-              >
-                All
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={() => setFoodCategory("Breakfast")}
-              >
-                Breakfast
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={() => setFoodCategory("Lunch")}
-              >
-                Lunch
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={() => setFoodCategory("Dinner")}
-              >
-                Dinner
-              </button>
-            </div>
-            <div className="empty"></div>
-          </div>
-        </div>
-      </div>
-      <Background foods={filteredFoods} onEdit={handleEditClick} />
+      <Header
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleButtonClick={handleButtonClick}
+        isPopupVisible={isPopupVisible}
+        setFoodCategory={setFoodCategory}
+      />
+      {isPopupVisible && (
+        <Popup
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          InputValueofdec={InputValueofdec}
+          setInputValueofdec={setInputValueofdec}
+          InputValueofprice={InputValueofprice}
+          setInputValueofprice={setInputValueofprice}
+          selectedImage={selectedImage}
+          setSelectedImage={setSelectedImage}
+          formFoodCategory={formFoodCategory}
+          setFormFoodCategory={setFormFoodCategory}
+          writeData={writeData}
+          handleDelete={handleDelete}
+          handleClosePopup={handleClosePopup}
+          editFoodId={editFoodId}
+        />
+      )}
+      <Background
+        foods={filteredFoods}
+        onEditClick={handleEditClick}
+        loading={loading} // Pass loading state
+      />
     </>
   );
 }
