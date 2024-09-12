@@ -288,6 +288,8 @@ function FoodyZoneText() {
     e.preventDefault();
 
     try {
+      setLoading(true);
+      setIsPopupVisible(false);
       const imageUrl = selectedImage ? await uploadImage(selectedImage) : null;
 
       if (editFoodId) {
@@ -301,6 +303,8 @@ function FoodyZoneText() {
           category: formFoodCategory,
         });
       } else {
+        setLoading(true);
+        setIsPopupVisible(false);
         await addDoc(collection(db, "Foods"), {
           title: inputValue,
           desc: InputValueofdec,
@@ -315,6 +319,10 @@ function FoodyZoneText() {
       fetchData();
     } catch (error) {
       console.error("Error uploading data", error);
+      setLoading(false);
+    } finally {
+      setLoading(false);
+      setIsPopupVisible(false);
     }
   };
 
@@ -381,7 +389,7 @@ function FoodyZoneText() {
       )}
       <Background
         foods={filteredFoods}
-        onEditClick={handleEditClick}
+        onEdit={handleEditClick}
         loading={loading} // Pass loading state
       />
     </>
